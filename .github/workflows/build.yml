@@ -23,13 +23,14 @@ jobs:
       - name: Compile the jailbreak binary (arm64)
         run: |
           xcrun --sdk iphoneos clang -arch arm64 \
-            -o JailbreakApp.app/JailbreakApp \
-            -framework IOKit -framework CoreFoundation \
             -framework UIKit -framework Foundation \
+            -framework IOKit -framework CoreFoundation \
+            -o JailbreakApp.app/JailbreakApp \
             exploit.c ViewController.m \
             -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
-            -Wno-implicit-function-declaration \
-            -ObjC
+            -Wno-implicit-function-declaration -ObjC \
+            -Wno-deprecated-declarations \
+            -fobjc-arc
 
       - name: Sign binary with entitlements
         run: |
