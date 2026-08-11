@@ -89,43 +89,6 @@ jobs:
         </plist>
         EOF
 
-    - name: Create LaunchScreen.storyboard
-      run: |
-        cat > JailbreakApp.app/Base.lproj/LaunchScreen.storyboard << 'EOF'
-        <?xml version="1.0" encoding="UTF-8"?>
-        <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-            <dependencies>
-                <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23504"/>
-            </dependencies>
-            <scenes>
-                <scene sceneID="launch-screen">
-                    <objects>
-                        <viewController id="launch-screen-vc" sceneMemberID="viewController">
-                            <view key="view" contentMode="scaleToFill" id="launch-screen-view">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jailbreak" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="label">
-                                        <rect key="frame" x="20" y="433" width="374" height="30"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <constraints>
-                                    <constraint firstItem="label" firstAttribute="centerY" secondItem="launch-screen-view" secondAttribute="centerY" constant="10" id="constraint1"/>
-                                    <constraint firstItem="label" firstAttribute="leading" secondItem="launch-screen-view" secondAttribute="leading" constant="20" id="constraint2"/>
-                                    <constraint firstAttribute="trailing" secondItem="label" secondAttribute="trailing" constant="20" id="constraint3"/>
-                                </constraints>
-                            </view>
-                        </viewController>
-                    </objects>
-                </scene>
-            </scenes>
-        </document>
-        EOF
-
     - name: Sign binary with entitlements
       run: |
         ldid -SEntitlements.plist JailbreakApp.app/JailbreakApp
@@ -133,6 +96,7 @@ jobs:
     - name: Package as .ipa
       run: |
         mkdir Payload
+        cp LaunchScreen.storyboard JailbreakApp.app/
         cp -r JailbreakApp.app Payload/
         zip -r Jailbreak.ipa Payload
 
