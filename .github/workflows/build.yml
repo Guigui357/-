@@ -22,15 +22,14 @@ jobs:
 
       - name: Compile the jailbreak binary (arm64)
         run: |
-          xcrun --sdk iphoneos clang -arch arm64 \
-            -framework UIKit -framework Foundation \
-            -framework IOKit -framework CoreFoundation \
-            -o JailbreakApp.app/JailbreakApp \
-            exploit.c ViewController.m \
-            -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
-            -Wno-implicit-function-declaration -ObjC \
-            -Wno-deprecated-declarations \
-            -fobjc-arc
+          xcrun --sdk iphoneos clang -arch arm64e \
+          -framework UIKit -framework Foundation \
+          -framework IOKit -framework CoreFoundation \
+          -o JailbreakApp.app/jailbreak \
+          exploit.c \
+          -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+          -Wno-implicit-function-declaration \
+          -Wno-deprecated-declarations
 
       - name: Sign binary with entitlements
         run: |
@@ -44,9 +43,9 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>CFBundleExecutable</key>
-            <string>JailbreakApp</string>
+            <string>jailbreak</string>
             <key>CFBundleIdentifier</key>
-            <string>com.example.jailbreak</string>
+            <string>com.jailbreak</string>
             <key>CFBundleName</key>
             <string>Jailbreak</string>
             <key>CFBundleVersion</key>
@@ -56,7 +55,7 @@ jobs:
             <key>UILaunchStoryboardName</key>
             <string>LaunchScreen</string>
             <key>UIRequiredDeviceCapabilities</key>
-            <array><string>arm64</string></array>
+            <array><string>arm64e</string></array>
             <key>UIStatusBarStyle</key>
             <string>UIStatusBarStyleDefault</string>
           </dict>
