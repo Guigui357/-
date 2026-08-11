@@ -7,19 +7,22 @@ extern int run_jailbreak(void);
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.jailbreakButton addTarget:self
+    
+    __weak typeof(self) weakSelf = self;
+    [self.jailbreakButton addTarget:weakSelf
                              action:@selector(startJailbreak)
                    forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)startJailbreak {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self appendLog:@"[+] Starting jailbreak..."];
+        [weakSelf appendLog:@"[+] Starting jailbreak..."];
         int result = run_jailbreak();
         if (result == 0) {
-            [self appendLog:@"[+] Jailbreak succeeded! Respringing..."];
+            [weakSelf appendLog:@"[+] Jailbreak succeeded! Respringing..."];
         } else {
-            [self appendLog:@"[!] Jailbreak failed with code %d", result];
+            [weakSelf appendLog:@"[!] Jailbreak failed with code %d", result];
         }
     });
 }
@@ -29,8 +32,10 @@ extern int run_jailbreak(void);
     va_start(args, format);
     NSString *msg = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
+    
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.logTextView.text = [self.logTextView.text stringByAppendingFormat:@"\n%@", msg];
+        weakSelf.logTextView.text = [weakSelf.logTextView.text stringByAppendingFormat:@"\n%@", msg];
     });
 }
 
