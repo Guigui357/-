@@ -8,7 +8,5 @@
     <true/>
     <key>platform-application</key>
     <true/>
-    <key>com.apple.springboard.debugapplications</key>
-    <true/>
 </dict>
 </plist>
