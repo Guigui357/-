@@ -15,46 +15,61 @@
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <!-- ScrollView que ativa a rolagem na tela inteira -->
+                            <!-- ScrollView que gerencia a rolagem -->
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="main-scroll-view">
                                 <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                                 <subviews>
-                                    <!-- Container interno que segura todo o conteúdo -->
+                                    <!-- Container com altura expandida (1200) para forçar o preenchimento e rolagem -->
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="content-view">
-                                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="390" height="1200"/>
                                         <subviews>
+                                            <!-- Texto Principal -->
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jailbreak" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="label">
-                                                <rect key="frame" x="20" y="407" width="350" height="30"/>
+                                                <rect key="frame" x="20" y="300" width="350" height="30"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            
+                                            <!-- NOVO: Botão adicionado abaixo do texto -->
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="action-button">
+                                                <rect key="frame" x="40" y="380" width="310" height="50"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="50" id="btn_h"/>
+                                                </constraints>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="filled" title="Continuar">
+                                                    <fontDescription key="titleFontDescription" type="boldSystem" pointSize="18"/>
+                                                    <color key="baseBackgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                </buttonConfiguration>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstItem="label" firstAttribute="centerY" secondItem="content-view" secondAttribute="centerY" id="constraint1"/>
-                                            <constraint firstItem="label" firstAttribute="leading" secondItem="content-view" secondAttribute="leading" constant="20" id="constraint2"/>
-                                            <constraint firstAttribute="trailing" secondItem="label" secondAttribute="trailing" constant="20" id="constraint3"/>
+                                            <!-- Constraints do Texto -->
+                                            <constraint firstItem="label" firstAttribute="top" secondItem="content-view" secondAttribute="top" constant="300" id="label_top"/>
+                                            <constraint firstItem="label" firstAttribute="leading" secondItem="content-view" secondAttribute="leading" constant="20" id="label_left"/>
+                                            <constraint firstAttribute="trailing" secondItem="label" secondAttribute="trailing" constant="20" id="label_right"/>
+                                            
+                                            <!-- Constraints do Botão (Abaixo do Texto) -->
+                                            <constraint firstItem="action-button" firstAttribute="top" secondItem="label" secondAttribute="bottom" constant="50" id="btn_top"/>
+                                            <constraint firstItem="action-button" firstAttribute="leading" secondItem="content-view" secondAttribute="leading" constant="40" id="btn_left"/>
+                                            <constraint firstAttribute="trailing" secondItem="action-button" secondAttribute="trailing" constant="40" id="btn_right"/>
                                         </constraints>
                                     </view>
                                 </subviews>
                                 <constraints>
-                                    <!-- Prende a ContentView nas bordas da ScrollView -->
                                     <constraint firstItem="content-view" firstAttribute="top" secondItem="main-scroll-view" secondAttribute="top" id="c_top"/>
                                     <constraint firstItem="content-view" firstAttribute="bottom" secondItem="main-scroll-view" secondAttribute="bottom" id="c_bottom"/>
                                     <constraint firstItem="content-view" firstAttribute="leading" secondItem="main-scroll-view" secondAttribute="leading" id="c_leading"/>
                                     <constraint firstItem="content-view" firstAttribute="trailing" secondItem="main-scroll-view" secondAttribute="trailing" id="c_trailing"/>
-                                    <!-- Força a largura do conteúdo a ser igual à largura da tela (evita rolagem horizontal) -->
                                     <constraint firstItem="content-view" firstAttribute="width" secondItem="main-scroll-view" secondAttribute="width" id="c_width"/>
-                                    <!-- Define a altura mínima igual à tela (garante rolagem vertical se crescer) -->
-                                    <constraint firstItem="content-view" firstAttribute="height" secondItem="main-scroll-view" secondAttribute="height" priority="250" id="c_height"/>
                                 </constraints>
                             </scrollView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <!-- Prende a ScrollView nas bordas da tela principal -->
                             <constraint firstItem="main-scroll-view" firstAttribute="top" secondItem="launch-screen-view" secondAttribute="top" id="s_top"/>
                             <constraint firstItem="main-scroll-view" firstAttribute="bottom" secondItem="launch-screen-view" secondAttribute="bottom" id="s_bottom"/>
                             <constraint firstItem="main-scroll-view" firstAttribute="leading" secondItem="launch-screen-view" secondAttribute="leading" id="s_leading"/>
