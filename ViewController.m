@@ -21,7 +21,7 @@
 }
 
 - (void)setupUI {
-    // ----- Título -----
+    // ----- 1. TÍTULO -----
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     titleLabel.text = @"🔓 iOS Jailbreak";
@@ -30,17 +30,14 @@
     titleLabel.textColor = [UIColor systemBlueColor];
     [self.view addSubview:titleLabel];
     
-    // ----- Log TextView -----
+    // ----- 2. TEXTVIEW (logs) -----
     self.logTextView = [[UITextView alloc] init];
     self.logTextView.translatesAutoresizingMaskIntoConstraints = NO;
     self.logTextView.editable = NO;
     self.logTextView.selectable = YES;
     self.logTextView.backgroundColor = [UIColor colorWithRed:0.05 green:0.05 blue:0.05 alpha:1.0];
     self.logTextView.textColor = [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:1.0];
-    self.logTextView.font = [UIFont fontWithName:@"CourierNewPS-BoldMT" size:11];
-    if (!self.logTextView.font) {
-        self.logTextView.font = [UIFont monospacedSystemFontOfSize:11 weight:UIFontWeightBold];
-    }
+    self.logTextView.font = [UIFont monospacedSystemFontOfSize:11 weight:UIFontWeightBold];
     self.logTextView.layer.cornerRadius = 12;
     self.logTextView.layer.masksToBounds = YES;
     self.logTextView.layer.borderWidth = 1;
@@ -52,7 +49,7 @@
     self.logTextView.contentInset = UIEdgeInsetsMake(12, 12, 12, 12);
     [self.view addSubview:self.logTextView];
     
-    // ----- Jailbreak Button -----
+    // ----- 3. BOTÃO (AQUI ESTÁ O BOTÃO!) -----
     self.jailbreakButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.jailbreakButton.translatesAutoresizingMaskIntoConstraints = NO;
     [self.jailbreakButton setTitle:@"🚀 INICIAR JAILBREAK" forState:UIControlStateNormal];
@@ -62,23 +59,19 @@
     self.jailbreakButton.titleLabel.font = [UIFont boldSystemFontOfSize:20];
     self.jailbreakButton.layer.cornerRadius = 14;
     self.jailbreakButton.layer.masksToBounds = YES;
-    self.jailbreakButton.layer.shadowColor = [UIColor systemBlueColor].CGColor;
-    self.jailbreakButton.layer.shadowOffset = CGSizeMake(0, 4);
-    self.jailbreakButton.layer.shadowRadius = 8;
-    self.jailbreakButton.layer.shadowOpacity = 0.3;
     [self.jailbreakButton addTarget:self
                              action:@selector(startJailbreak)
                    forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.jailbreakButton];
     
-    // ----- Activity Indicator -----
+    // ----- 4. ACTIVITY INDICATOR (dentro do botão) -----
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
     self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
     self.activityIndicator.hidesWhenStopped = YES;
     self.activityIndicator.color = [UIColor whiteColor];
     [self.jailbreakButton addSubview:self.activityIndicator];
     
-    // ----- Constraints -----
+    // ----- 5. CONSTRAINTS -----
     [NSLayoutConstraint activateConstraints:@[
         // Título
         [titleLabel.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:10],
@@ -92,13 +85,13 @@
         [self.logTextView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-16],
         [self.logTextView.heightAnchor constraintEqualToConstant:420],
         
-        // Jailbreak Button
+        // BOTÃO
         [self.jailbreakButton.topAnchor constraintEqualToAnchor:self.logTextView.bottomAnchor constant:25],
         [self.jailbreakButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
         [self.jailbreakButton.widthAnchor constraintEqualToConstant:280],
         [self.jailbreakButton.heightAnchor constraintEqualToConstant:60],
         
-        // Activity Indicator dentro do botão
+        // Activity Indicator
         [self.activityIndicator.centerXAnchor constraintEqualToAnchor:self.jailbreakButton.centerXAnchor],
         [self.activityIndicator.centerYAnchor constraintEqualToAnchor:self.jailbreakButton.centerYAnchor],
     ]];
@@ -117,8 +110,6 @@
     [self appendLog:@"[+] 🚀 Iniciando jailbreak..."];
     [self appendLog:@"[+] 📱 Modelo: %@", [UIDevice currentDevice].model];
     [self appendLog:@"[+] 📲 iOS: %@", [UIDevice currentDevice].systemVersion];
-    [self appendLog:@"[+] 🏗️ Arquitetura: arm64"];
-    [self appendLog:@"[+] 🔍 Escaneando kernel..."];
     [self appendLog:@"═══════════════════════════════"];
     
     __weak typeof(self) weakSelf = self;
@@ -133,21 +124,16 @@
                 [weakSelf.jailbreakButton setTitle:@"✅ JAILBREAK OK!" forState:UIControlStateNormal];
                 [weakSelf.jailbreakButton setBackgroundColor:[UIColor systemGreenColor]];
                 [weakSelf appendLog:@"═══════════════════════════════"];
-                [weakSelf appendLog:@"[+] ✅✅✅ SUCESSO! ✅✅✅"];
+                [weakSelf appendLog:@"[+] ✅ JAILBREAK CONCLUÍDO!"];
                 [weakSelf appendLog:@"[+] 🎉 Dispositivo jailbroken!"];
                 [weakSelf appendLog:@"[+] 🔑 SSH: root@localhost -p 2222"];
-                [weakSelf appendLog:@"[+] 📦 Bootstrap instalado em /var/jb"];
-                [weakSelf appendLog:@"[+] 📱 Reiniciando SpringBoard..."];
-                [weakSelf appendLog:@"[+] ⏳ Aguarde 5 segundos..."];
                 [weakSelf appendLog:@"═══════════════════════════════"];
             } else {
                 [weakSelf.jailbreakButton setTitle:@"❌ FALHOU" forState:UIControlStateNormal];
                 [weakSelf.jailbreakButton setBackgroundColor:[UIColor systemRedColor]];
                 [weakSelf appendLog:@"═══════════════════════════════"];
                 [weakSelf appendLog:@"[!] ❌ JAILBREAK FALHOU!"];
-                [weakSelf appendLog:@"[!] Código de erro: %d", result];
-                [weakSelf appendLog:@"[!] Verifique os logs acima"];
-                [weakSelf appendLog:@"[!] Dispositivo NÃO está jailbroken"];
+                [weakSelf appendLog:@"[!] Código: %d", result];
                 [weakSelf appendLog:@"═══════════════════════════════"];
             }
             
