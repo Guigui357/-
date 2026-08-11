@@ -1,75 +1,149 @@
-name: Build Jailbreak IPA
+name: Build Jailbreak App
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:   # allow manual trigger
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Permite execução manual
 
 jobs:
   build:
     runs-on: macos-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install ldid (for signing)
-        run: brew install ldid
+    - name: Install ldid (for signing)
+      run: brew install ldid
 
-      - name: Create app bundle structure
-        run: |
-          mkdir -p JailbreakApp.app
-          mkdir -p JailbreakApp.app/Base.lproj
+    - name: Create app bundle structure
+      run: |
+        mkdir -p JailbreakApp.app
+        mkdir -p JailbreakApp.app/Base.lproj
 
-      - name: Compile the jailbreak binary (arm64)
-        run: |
-          xcrun --sdk iphoneos clang -arch arm64e \
+    - name: Compile app (arm64)
+      run: |
+        xcrun --sdk iphoneos clang -arch arm64 \
           -framework UIKit -framework Foundation \
           -framework IOKit -framework CoreFoundation \
-          -o JailbreakApp.app/jailbreak \
-          exploit.c \
+          -o JailbreakApp.app/JailbreakApp \
+          main.m AppDelegate.m ViewController.m exploit.c \
           -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
           -Wno-implicit-function-declaration \
-          -Wno-deprecated-declarations
+          -Wno-deprecated-declarations \
+          -fobjc-arc
 
-      - name: Sign binary with entitlements
-        run: |
-          ldid -SEntitlements.plist JailbreakApp.app/JailbreakApp
-
-      - name: Generate Info.plist
-        run: |
-          cat > JailbreakApp.app/Info.plist <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
+    - name: Create Info.plist
+      run: |
+        cat > JailbreakApp.app/Info.plist << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleDevelopmentRegion</key>
+            <string>en</string>
             <key>CFBundleExecutable</key>
-            <string>jailbreak</string>
+            <string>JailbreakApp</string>
             <key>CFBundleIdentifier</key>
-            <string>com.jailbreak</string>
+            <string>com.example.jailbreak</string>
+            <key>CFBundleInfoDictionaryVersion</key>
+            <string>6.0</string>
             <key>CFBundleName</key>
             <string>Jailbreak</string>
-            <key>CFBundleVersion</key>
-            <string>1.0</string>
             <key>CFBundlePackageType</key>
             <string>APPL</string>
-            <key>UILaunchStoryboardName</key>
-            <string>LaunchScreen</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
+            <key>LSRequiresIPhoneOS</key>
+            <true/>
             <key>UIRequiredDeviceCapabilities</key>
-            <array><string>arm64e</string></array>
-            <key>UIStatusBarStyle</key>
-            <string>UIStatusBarStyleDefault</string>
-          </dict>
-          </plist>
-          EOF
+            <array>
+                <string>arm64</string>
+            </array>
+            <key>UISupportedInterfaceOrientations</key>
+            <array>
+                <string>UIInterfaceOrientationPortrait</string>
+            </array>
+        </dict>
+        </plist>
+        EOF
 
-      - name: Package as .ipa
-        run: |
-          mkdir Payload
-          cp -r JailbreakApp.app Payload/
-          zip -r Jailbreak.ipa Payload
+    - name: Create Entitlements.plist
+      run: |
+        cat > Entitlements.plist << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>com.apple.private.security.no-container</key>
+            <true/>
+            <key>task_for_pid-allow</key>
+            <true/>
+            <key>platform-application</key>
+            <true/>
+        </dict>
+        </plist>
+        EOF
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Jailbreak.ipa
-          path: Jailbreak.ipa
+    - name: Create LaunchScreen.storyboard
+      run: |
+        cat > JailbreakApp.app/Base.lproj/LaunchScreen.storyboard << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+            <dependencies>
+                <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23504"/>
+            </dependencies>
+            <scenes>
+                <scene sceneID="launch-screen">
+                    <objects>
+                        <viewController id="launch-screen-vc" sceneMemberID="viewController">
+                            <view key="view" contentMode="scaleToFill" id="launch-screen-view">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jailbreak" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="label">
+                                        <rect key="frame" x="20" y="433" width="374" height="30"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstItem="label" firstAttribute="centerY" secondItem="launch-screen-view" secondAttribute="centerY" constant="10" id="constraint1"/>
+                                    <constraint firstItem="label" firstAttribute="leading" secondItem="launch-screen-view" secondAttribute="leading" constant="20" id="constraint2"/>
+                                    <constraint firstAttribute="trailing" secondItem="label" secondAttribute="trailing" constant="20" id="constraint3"/>
+                                </constraints>
+                            </view>
+                        </viewController>
+                    </objects>
+                </scene>
+            </scenes>
+        </document>
+        EOF
+
+    - name: Sign binary with entitlements
+      run: |
+        ldid -SEntitlements.plist JailbreakApp.app/JailbreakApp
+
+    - name: Package as .ipa
+      run: |
+        mkdir Payload
+        cp -r JailbreakApp.app Payload/
+        zip -r Jailbreak.ipa Payload
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Jailbreak.ipa
+        path: Jailbreak.ipa
+
+    - name: Upload .app bundle (debug)
+      uses: actions/upload-artifact@v4
+      with:
+        name: JailbreakApp.app
+        path: JailbreakApp.app
