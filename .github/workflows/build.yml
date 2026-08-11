@@ -1,40 +1,27 @@
-name: Build Jailbreak App
+name: Build Jailbreak
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:  # Permite execução manual
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install ldid (for signing)
+    - uses: actions/checkout@v4
+    - name: Install ldid
       run: brew install ldid
-
-    - name: Create app bundle structure
+    - name: Compile
       run: |
         mkdir -p JailbreakApp.app
-        mkdir -p JailbreakApp.app/Base.lproj
-
-    - name: Compile app (arm64)
-      run: |
         xcrun --sdk iphoneos clang -arch arm64 \
           -framework UIKit -framework Foundation \
           -framework IOKit -framework CoreFoundation \
           -o JailbreakApp.app/JailbreakApp \
           main.m AppDelegate.m ViewController.m exploit.c \
           -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
-          -Wno-implicit-function-declaration \
-          -Wno-deprecated-declarations \
-          -fobjc-arc
-
+          -Wno-implicit-function-declaration -Wno-deprecated-declarations -fobjc-arc
     - name: Create Info.plist
       run: |
         cat > JailbreakApp.app/Info.plist << 'EOF'
@@ -42,37 +29,22 @@ jobs:
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
-            <key>CFBundleDevelopmentRegion</key>
-            <string>en</string>
             <key>CFBundleExecutable</key>
             <string>JailbreakApp</string>
             <key>CFBundleIdentifier</key>
             <string>com.example.jailbreak</string>
-            <key>CFBundleInfoDictionaryVersion</key>
-            <string>6.0</string>
             <key>CFBundleName</key>
             <string>Jailbreak</string>
-            <key>CFBundlePackageType</key>
-            <string>APPL</string>
-            <key>CFBundleShortVersionString</key>
-            <string>1.0</string>
             <key>CFBundleVersion</key>
-            <string>1</string>
+            <string>1.0</string>
             <key>LSRequiresIPhoneOS</key>
             <true/>
             <key>UIRequiredDeviceCapabilities</key>
-            <array>
-                <string>arm64</string>
-            </array>
-            <key>UISupportedInterfaceOrientations</key>
-            <array>
-                <string>UIInterfaceOrientationPortrait</string>
-            </array>
+            <array><string>arm64</string></array>
         </dict>
         </plist>
         EOF
-
-    - name: Create Entitlements.plist
+    - name: Create Entitlements
       run: |
         cat > Entitlements.plist << 'EOF'
         <?xml version="1.0" encoding="UTF-8"?>
@@ -88,26 +60,15 @@ jobs:
         </dict>
         </plist>
         EOF
-
-    - name: Sign binary with entitlements
-      run: |
-        ldid -SEntitlements.plist JailbreakApp.app/JailbreakApp
-
-    - name: Package as .ipa
+    - name: Sign
+      run: ldid -SEntitlements.plist JailbreakApp.app/JailbreakApp
+    - name: Package
       run: |
         mkdir Payload
-        cp LaunchScreen.storyboard JailbreakApp.app/
         cp -r JailbreakApp.app Payload/
         zip -r Jailbreak.ipa Payload
-
-    - name: Upload artifact
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: Jailbreak.ipa
         path: Jailbreak.ipa
-
-    - name: Upload .app bundle (debug)
-      uses: actions/upload-artifact@v4
-      with:
-        name: JailbreakApp.app
-        path: JailbreakApp.app
