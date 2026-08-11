@@ -1,18 +1,15 @@
-#import <mach/mach.h>
+#import <UIKit/UIKit.h>
+#import "ViewController.h"
 
-// Declare the C entry point from exploit.c
-int run_jailbreak(void);
-
-@interface ViewController ()
-@property (weak, nonatomic) IBOutlet UIButton *jailbreakButton;
-@property (weak, nonatomic) IBOutlet UITextView *logTextView;
-@end
+extern int run_jailbreak(void);
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.jailbreakButton addTarget:self action:@selector(startJailbreak) forControlEvents:UIControlEventTouchUpInside];
+    [self.jailbreakButton addTarget:self
+                             action:@selector(startJailbreak)
+                   forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)startJailbreak {
@@ -36,4 +33,5 @@ int run_jailbreak(void);
         self.logTextView.text = [self.logTextView.text stringByAppendingFormat:@"\n%@", msg];
     });
 }
+
 @end
