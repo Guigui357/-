@@ -1,0 +1,75 @@
+name: Build Jailbreak IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # allow manual trigger
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ldid (for signing)
+        run: brew install ldid
+
+      - name: Create app bundle structure
+        run: |
+          mkdir -p JailbreakApp.app
+          mkdir -p JailbreakApp.app/Base.lproj
+
+      - name: Compile the jailbreak binary (arm64)
+        run: |
+          xcrun --sdk iphoneos clang -arch arm64 \
+            -o JailbreakApp.app/JailbreakApp \
+            -framework IOKit -framework CoreFoundation \
+            -framework UIKit -framework Foundation \
+            exploit.c ViewController.m \
+            -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+            -Wno-implicit-function-declaration \
+            -ObjC
+
+      - name: Sign binary with entitlements
+        run: |
+          ldid -SEntitlements.plist JailbreakApp.app/JailbreakApp
+
+      - name: Generate Info.plist
+        run: |
+          cat > JailbreakApp.app/Info.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>JailbreakApp</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.example.jailbreak</string>
+            <key>CFBundleName</key>
+            <string>Jailbreak</string>
+            <key>CFBundleVersion</key>
+            <string>1.0</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>UILaunchStoryboardName</key>
+            <string>LaunchScreen</string>
+            <key>UIRequiredDeviceCapabilities</key>
+            <array><string>arm64</string></array>
+            <key>UIStatusBarStyle</key>
+            <string>UIStatusBarStyleDefault</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Package as .ipa
+        run: |
+          mkdir Payload
+          cp -r JailbreakApp.app Payload/
+          zip -r Jailbreak.ipa Payload
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Jailbreak.ipa
+          path: Jailbreak.ipa
