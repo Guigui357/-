@@ -13,109 +13,46 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [UIColor systemBackgroundColor];
+    self.view.backgroundColor = [UIColor whiteColor];
     self.title = @"Jailbreak";
     self.isRunning = NO;
     
-    // CHAMADA CRÍTICA: cria a interface
-    [self setupUI];
+    // CRIAR BOTÃO DIRETAMENTE
+    self.jailbreakButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    self.jailbreakButton.frame = CGRectMake(50, 200, 280, 60);
+    [self.jailbreakButton setTitle:@"🚀 INICIAR JAILBREAK" forState:UIControlStateNormal];
+    [self.jailbreakButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.jailbreakButton setBackgroundColor:[UIColor systemBlueColor]];
+    self.jailbreakButton.titleLabel.font = [UIFont boldSystemFontOfSize:20];
+    self.jailbreakButton.layer.cornerRadius = 14;
+    [self.jailbreakButton addTarget:self
+                             action:@selector(startJailbreak)
+                   forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.jailbreakButton];
+    
+    // LOG TEXTVIEW
+    self.logTextView = [[UITextView alloc] initWithFrame:CGRectMake(16, 80, self.view.bounds.size.width - 32, 100)];
+    self.logTextView.editable = NO;
+    self.logTextView.backgroundColor = [UIColor colorWithRed:0.05 green:0.05 blue:0.05 alpha:1.0];
+    self.logTextView.textColor = [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:1.0];
+    self.logTextView.font = [UIFont monospacedSystemFontOfSize:11 weight:UIFontWeightBold];
+    self.logTextView.text = @"Aguardando início...";
+    [self.view addSubview:self.logTextView];
+    
+    // ACTIVITY INDICATOR
+    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    self.activityIndicator.frame = CGRectMake(140, 220, 40, 40);
+    self.activityIndicator.hidesWhenStopped = YES;
+    self.activityIndicator.color = [UIColor whiteColor];
+    [self.view addSubview:self.activityIndicator];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    // FORÇA A ATUALIZAÇÃO DA VIEW
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
-}
-
-- (void)setupUI {
-    // ----- 1. TÍTULO -----
-    UILabel *titleLabel = [[UILabel alloc] init];
-    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    titleLabel.text = @"🔓 iOS Jailbreak";
-    titleLabel.font = [UIFont boldSystemFontOfSize:28];
-    titleLabel.textAlignment = NSTextAlignmentCenter;
-    titleLabel.textColor = [UIColor systemBlueColor];
-    [self.view addSubview:titleLabel];
-    
-    // ----- 2. TEXTVIEW (logs) -----
-    self.logTextView = [[UITextView alloc] init];
-    self.logTextView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.logTextView.editable = NO;
-    self.logTextView.selectable = YES;
-    self.logTextView.backgroundColor = [UIColor colorWithRed:0.05 green:0.05 blue:0.05 alpha:1.0];
-    self.logTextView.textColor = [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:1.0];
-    self.logTextView.font = [UIFont monospacedSystemFontOfSize:11 weight:UIFontWeightBold];
-    self.logTextView.layer.cornerRadius = 12;
-    self.logTextView.layer.masksToBounds = YES;
-    self.logTextView.layer.borderWidth = 1;
-    self.logTextView.layer.borderColor = [UIColor colorWithRed:0.0 green:0.5 blue:0.0 alpha:0.5].CGColor;
-    self.logTextView.text = @"═══════════════════════════════\n";
-    self.logTextView.text = [self.logTextView.text stringByAppendingString:@"  🔓 JAILBREAK TOOL\n"];
-    self.logTextView.text = [self.logTextView.text stringByAppendingString:@"  Aguardando início...\n"];
-    self.logTextView.text = [self.logTextView.text stringByAppendingString:@"═══════════════════════════════\n"];
-    self.logTextView.contentInset = UIEdgeInsetsMake(12, 12, 12, 12);
-    [self.view addSubview:self.logTextView];
-    
-    // ----- 3. BOTÃO (AGORA COM BACKGROUND VISÍVEL) -----
-    self.jailbreakButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    self.jailbreakButton.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    // Configuração do botão
-    [self.jailbreakButton setTitle:@"🚀 INICIAR JAILBREAK" forState:UIControlStateNormal];
-    [self.jailbreakButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.jailbreakButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
-    [self.jailbreakButton setBackgroundColor:[UIColor systemBlueColor]];
-    self.jailbreakButton.titleLabel.font = [UIFont boldSystemFontOfSize:20];
-    self.jailbreakButton.layer.cornerRadius = 14;
-    self.jailbreakButton.layer.masksToBounds = YES;
-    self.jailbreakButton.layer.shadowColor = [UIColor systemBlueColor].CGColor;
-    self.jailbreakButton.layer.shadowOffset = CGSizeMake(0, 4);
-    self.jailbreakButton.layer.shadowRadius = 8;
-    self.jailbreakButton.layer.shadowOpacity = 0.3;
-    
-    // Ação do botão
-    [self.jailbreakButton addTarget:self
-                             action:@selector(startJailbreak)
-                   forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:self.jailbreakButton];
-    
-    // ----- 4. ACTIVITY INDICATOR (dentro do botão) -----
-    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
-    self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
-    self.activityIndicator.hidesWhenStopped = YES;
-    self.activityIndicator.color = [UIColor whiteColor];
-    [self.jailbreakButton addSubview:self.activityIndicator];
-    
-    // ----- 5. CONSTRAINTS -----
-    [NSLayoutConstraint activateConstraints:@[
-        // Título
-        [titleLabel.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:10],
-        [titleLabel.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
-        [titleLabel.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
-        [titleLabel.heightAnchor constraintEqualToConstant:40],
-        
-        // Log TextView
-        [self.logTextView.topAnchor constraintEqualToAnchor:titleLabel.bottomAnchor constant:12],
-        [self.logTextView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:16],
-        [self.logTextView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-16],
-        [self.logTextView.heightAnchor constraintEqualToConstant:420],
-        
-        // BOTÃO - COM POSICIONAMENTO CLARO
-        [self.jailbreakButton.topAnchor constraintEqualToAnchor:self.logTextView.bottomAnchor constant:30],
-        [self.jailbreakButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [self.jailbreakButton.widthAnchor constraintEqualToConstant:280],
-        [self.jailbreakButton.heightAnchor constraintEqualToConstant:60],
-        
-        // Activity Indicator
-        [self.activityIndicator.centerXAnchor constraintEqualToAnchor:self.jailbreakButton.centerXAnchor],
-        [self.activityIndicator.centerYAnchor constraintEqualToAnchor:self.jailbreakButton.centerYAnchor],
-    ]];
-    
-    // FORÇA O LAYOUT
-    [self.view layoutIfNeeded];
+    // Mostrar botão novamente
+    self.jailbreakButton.hidden = NO;
+    [self.view bringSubviewToFront:self.jailbreakButton];
 }
 
 - (void)startJailbreak {
@@ -127,12 +64,7 @@
     [self.jailbreakButton setBackgroundColor:[UIColor systemGrayColor]];
     [self.activityIndicator startAnimating];
     
-    [self appendLog:@"═══════════════════════════════"];
-    [self appendLog:@"[+] 🚀 Iniciando jailbreak..."];
-    [self appendLog:@"[+] 📱 Modelo: %@", [UIDevice currentDevice].model];
-    [self appendLog:@"[+] 📲 iOS: %@", [UIDevice currentDevice].systemVersion];
-    [self appendLog:@"[+] ⏳ Isso pode levar alguns segundos..."];
-    [self appendLog:@"═══════════════════════════════"];
+    self.logTextView.text = [self.logTextView.text stringByAppendingString:@"\n[+] Iniciando jailbreak..."];
     
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -145,46 +77,15 @@
             if (result == 0) {
                 [weakSelf.jailbreakButton setTitle:@"✅ JAILBREAK OK!" forState:UIControlStateNormal];
                 [weakSelf.jailbreakButton setBackgroundColor:[UIColor systemGreenColor]];
-                [weakSelf appendLog:@"═══════════════════════════════"];
-                [weakSelf appendLog:@"[+] ✅✅✅ SUCESSO! ✅✅✅"];
-                [weakSelf appendLog:@"[+] 🎉 Dispositivo jailbroken!"];
-                [weakSelf appendLog:@"[+] 🔑 SSH: root@localhost -p 2222"];
-                [weakSelf appendLog:@"[+] 📦 Bootstrap: /var/jb"];
-                [weakSelf appendLog:@"[+] 📱 Reiniciando SpringBoard..."];
-                [weakSelf appendLog:@"═══════════════════════════════"];
+                weakSelf.logTextView.text = [weakSelf.logTextView.text stringByAppendingString:@"\n[+] ✅ JAILBREAK CONCLUÍDO!"];
             } else {
                 [weakSelf.jailbreakButton setTitle:@"❌ FALHOU" forState:UIControlStateNormal];
                 [weakSelf.jailbreakButton setBackgroundColor:[UIColor systemRedColor]];
-                [weakSelf appendLog:@"═══════════════════════════════"];
-                [weakSelf appendLog:@"[!] ❌ JAILBREAK FALHOU!"];
-                [weakSelf appendLog:@"[!] Código de erro: %d", result];
-                [weakSelf appendLog:@"[!] Verifique se o dispositivo é compatível"];
-                [weakSelf appendLog:@"[!] A12+ é necessário (iPhone XS ou superior)"];
-                [weakSelf appendLog:@"═══════════════════════════════"];
+                weakSelf.logTextView.text = [weakSelf.logTextView.text stringByAppendingFormat:@"\n[!] ❌ FALHOU! Código: %d", result];
             }
             
             weakSelf.isRunning = NO;
         });
-    });
-}
-
-- (void)appendLog:(NSString *)format, ... {
-    va_list args;
-    va_start(args, format);
-    NSString *msg = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
-    
-    __weak typeof(self) weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *currentText = weakSelf.logTextView.text;
-        if (currentText.length > 0) {
-            weakSelf.logTextView.text = [currentText stringByAppendingFormat:@"\n%@", msg];
-        } else {
-            weakSelf.logTextView.text = msg;
-        }
-        // Scroll para o final
-        NSRange range = NSMakeRange(weakSelf.logTextView.text.length - 1, 1);
-        [weakSelf.logTextView scrollRangeToVisible:range];
     });
 }
 
