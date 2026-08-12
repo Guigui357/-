@@ -33,7 +33,6 @@ void log_callback(const char *message) {
 }
 
 - (void)setupUI {
-    // Title
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     titleLabel.text = @"🔓 iOS 27 Beta 4 Jailbreak";
@@ -42,7 +41,6 @@ void log_callback(const char *message) {
     titleLabel.textColor = [UIColor systemBlueColor];
     [self.view addSubview:titleLabel];
     
-    // Log TextView
     self.logTextView = [[UITextView alloc] init];
     self.logTextView.translatesAutoresizingMaskIntoConstraints = NO;
     self.logTextView.editable = NO;
@@ -54,7 +52,6 @@ void log_callback(const char *message) {
     self.logTextView.contentInset = UIEdgeInsetsMake(12, 12, 12, 12);
     [self.view addSubview:self.logTextView];
     
-    // Jailbreak Button
     self.jailbreakButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.jailbreakButton.translatesAutoresizingMaskIntoConstraints = NO;
     [self.jailbreakButton setTitle:@"🔓 INICIAR JAILBREAK" forState:UIControlStateNormal];
@@ -67,14 +64,12 @@ void log_callback(const char *message) {
                    forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.jailbreakButton];
     
-    // Activity Indicator
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
     self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
     self.activityIndicator.hidesWhenStopped = YES;
     self.activityIndicator.color = [UIColor whiteColor];
     [self.jailbreakButton addSubview:self.activityIndicator];
     
-    // Constraints
     [NSLayoutConstraint activateConstraints:@[
         [titleLabel.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:20],
         [titleLabel.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
@@ -105,6 +100,19 @@ void log_callback(const char *message) {
             [self.logTextView scrollRangeToVisible:range];
         });
     }
+}
+
+- (void)appendLog:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *msg = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.logTextView.text = [self.logTextView.text stringByAppendingFormat:@"%@\n", msg];
+        NSRange range = NSMakeRange(self.logTextView.text.length - 1, 1);
+        [self.logTextView scrollRangeToVisible:range];
+    });
 }
 
 - (void)startJailbreak {
